@@ -1,0 +1,31 @@
+name: Check Updates
+
+env:
+  WEBHOOK_URL: ${{ secrets.WEBHOOK_URL }}
+  FORKED_REPO: "https://github.com/TeamNewPipe/NewPipe"
+  MAIN_REPO: "https://github.com/anhlahieupro/NewPipe"
+  TARGET_BRANCH: "dev"
+
+on:
+  schedule:
+    - cron: "0 */12 * * *"
+
+jobs:
+  check_updates:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+      
+    - name: Check Updates
+      run: |
+        git remote add upstream $FORKED_REPO
+        git fetch upstream
+        
+        UPDATES=$(git log --pretty=oneline $TARGET_BRANCH..upstream/$TARGET_BRANCH)
+
+        if [ -n "$UPDATES" ]; then
+          curl -X POST -H 'Content-type: application/json' \
+            --data "{\"text\":\"$MAIN_REPO\"}" $WEBHOOK_URL
+        fi

@@ -4,6 +4,7 @@ env:
   WEBHOOK_URL: ${{ secrets.WEBHOOK_URL }}
   FORKED_REPO: "https://github.com/TeamNewPipe/NewPipe"
   BRANCH: "dev"
+  MY_REPO: "https://github.com/anhlahieupro/NewPipe"
   MY_NAME: "Hieu Dinh"
 
 on:
@@ -34,5 +35,5 @@ jobs:
 
         if [ "$FORKED_LAST_ID" != "$MY_LAST_ID" ]; then
           curl -X POST -H 'Content-type: application/json' \
-            --data "{\"text\":\"$MAIN_REPO\"}" $WEBHOOK_URL
+            --data "{\"text\":\"$MY_REPO\"}" $WEBHOOK_URL
         fi

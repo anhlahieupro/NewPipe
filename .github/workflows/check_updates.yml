@@ -3,8 +3,8 @@ name: Check Updates
 env:
   WEBHOOK_URL: ${{ secrets.WEBHOOK_URL }}
   FORKED_REPO: "https://github.com/TeamNewPipe/NewPipe"
-  MAIN_REPO: "https://github.com/anhlahieupro/NewPipe"
-  TARGET_BRANCH: "dev"
+  BRANCH: "dev"
+  MY_NAME: "Hieu Dinh"
 
 on:
   schedule:
@@ -20,12 +20,19 @@ jobs:
       
     - name: Check Updates
       run: |
-        git remote add upstream $FORKED_REPO
-        git fetch upstream
-        
-        UPDATES=$(git log --pretty=oneline $TARGET_BRANCH..upstream/$TARGET_BRANCH)
+        MY_LAST_ID=""
+        for number in 1 2 3 4 5; do
+            if ! git log -n $number --format="%h %an" | tail -n 1 | grep -q $MY_NAME; then
+                MY_LAST_ID=$(git log -n $number --format="%h" | tail -n 1)
+                break
+            fi
+        done
 
-        if [ -n "$UPDATES" ]; then
+        git remote add upstream $FORKED_REPO
+        git fetch upstream >/dev/null 2>&1
+        FORKED_LAST_ID=$(git log -n 1 --format="%h" "upstream/$BRANCH" | tail -n 1)
+
+        if [ "$FORKED_LAST_ID" != "$MY_LAST_ID" ]; then
           curl -X POST -H 'Content-type: application/json' \
             --data "{\"text\":\"$MAIN_REPO\"}" $WEBHOOK_URL
         fi
